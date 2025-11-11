@@ -1,0 +1,79 @@
+// =======================
+// MathLibrary.h
+// =======================
+
+// ✅ Ensures this file is included only once when compiling (avoids duplication)
+#pragma once
+
+// ✅ This checks if the code is being compiled with a C++ compiler
+#ifdef __cplusplus
+// ✅ If yes, tell the compiler to use C-style naming for the functions inside the braces
+// This avoids "name mangling" so C and C++ programs can both use this library.
+extern "C" {
+#endif
+
+// ✅ Function declarations (only the function names and parameters)
+// These functions will be defined (implemented) in MathLibrary.cpp
+int add(int a, int b);
+int subtract(int a, int b);
+
+// ✅ End of extern "C" block (only used if compiled as C++)
+#ifdef __cplusplus
+}
+#endif
+
+
+
+
+// =======================
+// MathLibrary.cpp
+// =======================
+
+// ✅ Include the header file so compiler knows the function declarations
+#include "MathLibrary.h"
+
+// ✅ Function definition for add()
+// This function takes two integers a and b, and returns their sum.
+int add(int a, int b) {
+    return a + b;
+}
+
+// ✅ Function definition for subtract()
+// This function takes two integers a and b, and returns the result of a minus b.
+int subtract(int a, int b) {
+    return a - b;
+}
+
+
+
+
+// =======================
+// main.cpp
+// =======================
+
+// ✅ Include iostream to use input/output (cout, endl)
+#include <iostream>
+
+// ✅ Include our custom header file to use add() and subtract()
+#include "MathLibrary.h"
+
+// ✅ main() function – entry point of the program
+int main() {
+
+    // ✅ Call add() function from the shared library and display result
+    std::cout << "Add: " << add(4, 2) << std::endl;
+
+    // ✅ Call subtract() function from the shared library and display result
+    std::cout << "Subtract: " << subtract(4, 2) << std::endl;
+
+    // ✅ Return 0 means program executed successfully
+    return 0;
+}
+
+
+
+
+g++ -fPIC -c MathLibrary.cpp -o MathLibrary.o
+g++ -shared -o libmath.so MathLibrary.o
+g++ main.cpp -L. -lmath -o main
+LD_LIBRARY_PATH=. ./main
