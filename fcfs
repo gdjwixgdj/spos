@@ -1,0 +1,78 @@
+
+// Program: CPU Scheduling using FCFS (First Come First Serve)
+
+import java.util.Scanner;
+
+public class FCFS {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Step 1: Take number of processes from user
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        // Step 2: Declare arrays for each required metric
+        int[] arrivalTime = new int[n];
+        int[] burstTime = new int[n];
+        int[] completionTime = new int[n];
+        int[] turnAroundTime = new int[n];
+        int[] waitingTime = new int[n];
+
+        // Step 3: Take arrival and burst time for each process
+        for (int i = 0; i < n; i++) {
+            System.out.println("\nProcess P" + (i + 1) + ":");
+            System.out.print("Enter Arrival Time: ");
+            arrivalTime[i] = sc.nextInt();
+
+            System.out.print("Enter Burst Time: ");
+            burstTime[i] = sc.nextInt();
+        }
+
+        // Step 4: Calculate Completion Time for each process
+        int currentTime = 0;
+        for (int i = 0; i < n; i++) {
+            // If CPU is idle till the process arrives
+            if (currentTime < arrivalTime[i]) {
+                currentTime = arrivalTime[i];
+            }
+
+            // Add burst time to current time
+            currentTime += burstTime[i];
+
+            // Store completion time
+            completionTime[i] = currentTime;
+        }
+
+        // Step 5: Calculate Turnaround Time and Waiting Time
+        for (int i = 0; i < n; i++) {
+            // TAT = Completion - Arrival
+            turnAroundTime[i] = completionTime[i] - arrivalTime[i];
+
+            // WT = TAT - Burst
+            waitingTime[i] = turnAroundTime[i] - burstTime[i];
+        }
+
+        // Step 6: Display the result in tabular form
+        System.out.println("\nProcess\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time");
+        for (int i = 0; i < n; i++) {
+            System.out.println("P" + (i + 1) + "\t\t"
+                    + arrivalTime[i] + "\t\t"
+                    + burstTime[i] + "\t\t"
+                    + completionTime[i] + "\t\t"
+                    + turnAroundTime[i] + "\t\t"
+                    + waitingTime[i]);
+        }
+
+        // Step 7: Calculate and display average times
+        double totalTAT = 0, totalWT = 0;
+        for (int i = 0; i < n; i++) {
+            totalTAT += turnAroundTime[i];
+            totalWT += waitingTime[i];
+        }
+
+        System.out.printf("\nAverage Turnaround Time: %.2f\n", totalTAT / n);
+        System.out.printf("Average Waiting Time: %.2f\n", totalWT / n);
+
+        sc.close();
+    }
+}
