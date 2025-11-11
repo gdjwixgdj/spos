@@ -1,0 +1,116 @@
+import java.io.*;
+import java.util.*;
+
+// Simple Pass 1 Assembler
+public class SimplePass1 {
+    // OPTAB = Mnemonics with their machine code
+    static Map<String, String> OPTAB = new HashMap<>();
+    // SYMTAB = Symbol table (Label -> Address)
+    static Map<String, Integer> SYMTAB = new HashMap<>();
+
+    public static void main(String[] args) throws IOException {
+        // Initialize opcode table
+        OPTAB.put("START", "AD,01");
+        OPTAB.put("END", "AD,02");
+        OPTAB.put("MOVER", "IS,04");
+        OPTAB.put("MOVEM", "IS,05");
+        OPTAB.put("ADD", "IS,01");
+        OPTAB.put("SUB", "IS,02");
+        OPTAB.put("MULT", "IS,03");
+        OPTAB.put("DIV", "IS,08");
+        OPTAB.put("READ", "IS,09");
+        OPTAB.put("PRINT", "IS,10");
+        OPTAB.put("DC", "DL,01");
+        OPTAB.put("DS", "DL,02");
+
+        // Input file (assembly code)
+        BufferedReader br = new BufferedReader(new FileReader("input.txt"));
+        BufferedWriter bw = new BufferedWriter(new FileWriter("intermediate.txt"));
+
+        int LC = 0; // Location Counter
+
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] tokens = line.split("\\s+"); // split by space
+
+            // START directive
+            if (tokens[0].equals("START")) {
+                LC = Integer.parseInt(tokens[1]);
+                bw.write("(AD,01) (C," + LC + ")\n");
+                continue;
+            }
+
+            // END directive
+            if (tokens[0].equals("END")) {
+                bw.write("(AD,02)\n");
+                break;
+            }
+
+            // Label handling: If line starts with a label
+            if (!OPTAB.containsKey(tokens[0])) {
+                SYMTAB.put(tokens[0], LC);
+                tokens = Arrays.copyOfRange(tokens, 1, tokens.length); // skip label
+            }
+
+            // Check if the first word is a mnemonic
+            if (OPTAB.containsKey(tokens[0])) {
+                String opcode = OPTAB.get(tokens[0]);
+
+                // For data definitions
+                if (tokens[0].equals("DC")) {
+                    bw.write("(DL,01) (C," + tokens[1] + ")\n");
+                    LC++;
+                } else if (tokens[0].equals("DS")) {
+                    bw.write("(DL,02) (C," + tokens[1] + ")\n");
+                    LC += Integer.parseInt(tokens[1]);
+                } else { // Instruction
+                    bw.write("(" + opcode + ") ");
+                    for (int i = 1; i < tokens.length; i++)
+                        bw.write(tokens[i] + " ");
+                    bw.newLine();
+                    LC++;
+                }
+            }
+        }
+
+        br.close();
+        bw.close();
+
+        // Print symbol table
+        System.out.println("SYMBOL TABLE");
+        for (Map.Entry<String, Integer> e : SYMTAB.entrySet())
+            System.out.println(e.getKey() + "\t" + e.getValue());
+
+        System.out.println("\n✅ Intermediate Code generated in intermediate.txt");
+    }
+}
+
+
+
+START 100
+READ A
+MOVER AREG, B
+ADD AREG, ='5'
+MOVEM AREG, RESULT
+A DS 1
+RESULT DC 1
+END
+
+
+
+
+(AD,01) (C,100)
+(IS,09) A
+(IS,04) AREG, B
+(IS,01) AREG, ='5'
+(IS,05) AREG, RESULT
+(DL,02) (C,1)
+(DL,01) (C,1)
+(AD,02)
+
+
+
+javac SimplePass1.java
+java SimplePass1
+
+
