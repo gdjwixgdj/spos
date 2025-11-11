@@ -148,16 +148,16 @@ public class MemoryAllocation {
 
 
 
-Enter number of blocks: 5
-Enter block sizes:
-100
-500
-200
-300
-600
-Enter number of processes: 4
-Enter process sizes:
-212
-417
-112
-426
+//Enter number of blocks: 5
+//Enter block sizes:
+//100
+//500
+//200
+//300
+//600
+//Enter number of processes: 4
+//Enter process sizes:
+//212
+//417
+//112
+//426
