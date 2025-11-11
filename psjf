@@ -1,0 +1,135 @@
+/*
+Assignment 04
+Name: Deepak Nachnani
+Class: TE-A     Roll No: 25
+
+Program: Write a program to simulate CPU Scheduling Algorithm – SJF (Preemptive)
+(Shortest Job First or Shortest Remaining Time First)
+*/
+
+import java.util.*;
+
+class Process {
+    int pid;            // Process ID
+    int arrivalTime;    // Arrival Time
+    int burstTime;      // Burst Time
+    int remainingTime;  // Remaining Time during execution
+    int completionTime; // Completion Time
+
+    // Constructor to initialize process details
+    Process(int pid, int arrivalTime, int burstTime) {
+        this.pid = pid;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+        this.remainingTime = burstTime;
+    }
+}
+
+public class PSJF {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Step 1: Input number of processes
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        Process[] processes = new Process[n];
+
+        // Step 2: Input arrival and burst times
+        for (int i = 0; i < n; i++) {
+            System.out.println("\nEnter details for Process P" + (i + 1));
+            System.out.print("Arrival Time: ");
+            int at = sc.nextInt();
+            System.out.print("Burst Time: ");
+            int bt = sc.nextInt();
+            processes[i] = new Process(i + 1, at, bt);
+        }
+
+        // Step 3: Sort processes by arrival time
+        Arrays.sort(processes, Comparator.comparingInt(p -> p.arrivalTime));
+
+        int currentTime = 0;
+        int completed = 0;
+        int[] completionTimes = new int[n];
+        int[] remainingTime = new int[n];
+        boolean[] isCompleted = new boolean[n];
+
+        for (int i = 0; i < n; i++) {
+            remainingTime[i] = processes[i].burstTime;
+        }
+
+        // Step 4: Run until all processes complete
+        while (completed != n) {
+            int idx = -1;
+            int minRemaining = Integer.MAX_VALUE;
+
+            // Step 5: Choose process with smallest remaining time that has arrived
+            for (int i = 0; i < n; i++) {
+                if (processes[i].arrivalTime <= currentTime && !isCompleted[i]
+                        && remainingTime[i] < minRemaining && remainingTime[i] > 0) {
+                    minRemaining = remainingTime[i];
+                    idx = i;
+                }
+            }
+
+            // Step 6: If no process has arrived yet → CPU idle
+            if (idx == -1) {
+                currentTime++;
+            } else {
+                // Run the selected process for 1 unit time
+                remainingTime[idx]--;
+                currentTime++;
+
+                // If process completes
+                if (remainingTime[idx] == 0) {
+                    isCompleted[idx] = true;
+                    completed++;
+                    completionTimes[idx] = currentTime;
+                }
+            }
+        }
+
+        // Step 7: Calculate TAT and WT
+        int[] turnaroundTime = new int[n];
+        int[] waitingTime = new int[n];
+        float totalTAT = 0, totalWT = 0;
+
+        System.out.println("\nProcess\tAT\tBT\tCT\tTAT\tWT");
+        for (int i = 0; i < n; i++) {
+            turnaroundTime[i] = completionTimes[i] - processes[i].arrivalTime;
+            waitingTime[i] = turnaroundTime[i] - processes[i].burstTime;
+            totalTAT += turnaroundTime[i];
+            totalWT += waitingTime[i];
+
+            System.out.println("P" + processes[i].pid + "\t" + processes[i].arrivalTime + "\t" +
+                    processes[i].burstTime + "\t" + completionTimes[i] + "\t" +
+                    turnaroundTime[i] + "\t" + waitingTime[i]);
+        }
+
+        // Step 8: Print averages
+        System.out.printf("\nAverage Turnaround Time: %.2f\n", totalTAT / n);
+        System.out.printf("Average Waiting Time   : %.2f\n", totalWT / n);
+
+        sc.close();
+    }
+
+
+
+Enter number of processes: 3
+
+Enter details for Process P1
+Arrival Time: 0
+Burst Time: 7
+
+Enter details for Process P2
+Arrival Time: 2
+Burst Time: 4
+
+Enter details for Process P3
+Arrival Time: 4
+Burst Time: 1
+
+
+
+}
