@@ -75,27 +75,25 @@ public class MemoryAllocation {
     // 🔹 NEXT FIT Algorithm
     // ===============================
     static void nextFit(int blockSize[], int m, int processSize[], int n) {
-        int allocation[] = new int[n];
-        for (int i = 0; i < n; i++) allocation[i] = -1;
+    int allocation[] = new int[n];
+    for (int i = 0; i < n; i++) allocation[i] = -1;
 
-        int j = 0;          // start index
-        int t = m - 1;      // track previous position
-        for (int i = 0; i < n; i++) {
-            while (j < m) {
-                if (blockSize[j] >= processSize[i]) { // block fits
-                    allocation[i] = j;
-                    blockSize[j] -= processSize[i];
-                    t = (j - 1 + m) % m; // update pointer
-                    break;
-                }
-                if (t == j) { // came full circle, no block available
-                    j = m;
-                }
-                j = (j + 1) % m; // move to next block
+    int j = 0; // pointer to current block
+    for (int i = 0; i < n; i++) {
+        int count = 0; // to avoid infinite loop
+        while (count < m) {
+            if (blockSize[j] >= processSize[i]) {
+                allocation[i] = j;
+                blockSize[j] -= processSize[i];
+                break;
             }
+            j = (j + 1) % m;
+            count++;
         }
-        printAllocation(processSize, allocation);
     }
+    printAllocation(processSize, allocation);
+}
+
 
     // ===============================
     // 🔹 PRINT ALLOCATION RESULT
