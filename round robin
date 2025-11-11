@@ -1,0 +1,120 @@
+import java.util.*;
+
+public class RoundRobin {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        int[] pid = new int[n];
+        int[] arrivalTime = new int[n];
+        int[] burstTime = new int[n];
+        int[] remainingTime = new int[n];
+        int[] completionTime = new int[n];
+        int[] turnaroundTime = new int[n];
+        int[] waitingTime = new int[n];
+
+        // Input process details
+        for (int i = 0; i < n; i++) {
+            pid[i] = i + 1;
+            System.out.println("\nEnter details for Process P" + pid[i]);
+            System.out.print("Arrival Time: ");
+            arrivalTime[i] = sc.nextInt();
+            System.out.print("Burst Time: ");
+            burstTime[i] = sc.nextInt();
+            remainingTime[i] = burstTime[i];
+        }
+
+        System.out.print("\nEnter Time Quantum: ");
+        int quantum = sc.nextInt();
+
+        int currentTime = 0, completed = 0;
+        Queue<Integer> queue = new LinkedList<>();
+        boolean[] isInQueue = new boolean[n];
+
+        // Start with first process that has arrived
+        queue.add(0);
+        isInQueue[0] = true;
+
+        while (completed != n) {
+            if (queue.isEmpty()) {
+                currentTime++;
+                // Check if any new process has arrived
+                for (int i = 0; i < n; i++) {
+                    if (arrivalTime[i] <= currentTime && remainingTime[i] > 0 && !isInQueue[i]) {
+                        queue.add(i);
+                        isInQueue[i] = true;
+                    }
+                }
+                continue;
+            }
+
+            int i = queue.poll();
+
+            if (remainingTime[i] > 0) {
+                if (remainingTime[i] > quantum) {
+                    currentTime += quantum;
+                    remainingTime[i] -= quantum;
+                } else {
+                    currentTime += remainingTime[i];
+                    remainingTime[i] = 0;
+                    completionTime[i] = currentTime;
+                    completed++;
+                }
+            }
+
+            // Add new processes that have arrived during this time
+            for (int j = 0; j < n; j++) {
+                if (arrivalTime[j] <= currentTime && remainingTime[j] > 0 && !isInQueue[j]) {
+                    queue.add(j);
+                    isInQueue[j] = true;
+                }
+            }
+
+            // If current process still not finished, put it back in queue
+            if (remainingTime[i] > 0) {
+                queue.add(i);
+            }
+        }
+
+        // Calculate Turnaround & Waiting Time
+        double totalTAT = 0, totalWT = 0;
+        for (int i = 0; i < n; i++) {
+            turnaroundTime[i] = completionTime[i] - arrivalTime[i];
+            waitingTime[i] = turnaroundTime[i] - burstTime[i];
+            totalTAT += turnaroundTime[i];
+            totalWT += waitingTime[i];
+        }
+
+        // Display Table
+        System.out.println("\nProcess\tAT\tBT\tCT\tTAT\tWT");
+        for (int i = 0; i < n; i++) {
+            System.out.println("P" + pid[i] + "\t" + arrivalTime[i] + "\t" + burstTime[i] + "\t" +
+                    completionTime[i] + "\t" + turnaroundTime[i] + "\t" + waitingTime[i]);
+        }
+
+        System.out.printf("\nAverage Turnaround Time: %.2f\n", totalTAT / n);
+        System.out.printf("Average Waiting Time   : %.2f\n", totalWT / n);
+
+        sc.close();
+    }
+}
+
+Enter number of processes: 3
+
+Enter details for Process P1
+Arrival Time: 0
+Burst Time: 5
+
+Enter details for Process P2
+Arrival Time: 1
+Burst Time: 3
+
+Enter details for Process P3
+Arrival Time: 2
+Burst Time: 1
+
+Enter Time Quantum: 2
+
+
